@@ -16,13 +16,15 @@
     </div>
     <div class="sn-calendar__days layout horizontal wrap">
       <template v-for="week of viewDateMatrix">
-        <div class="sn-calendar__days__day layout horizontal center-center" v-for="date of week"
+        <v-touch class="sn-calendar__days__day layout horizontal center-center" v-for="(date, index) of week"
+          :key="index"
           :class="[date.curClass, date.offClass]"
           :date="date.fullDate"
-          :selected="date.selected">
+          :selected="date.selected"
+          v-on:tap="selectDate(date.fullDate)">
           <div class="after"></div>
           <div class="layout center">{{date.shortDate}}</div>
-        </div>
+        </v-touch>
       </template>
 
     </div>
@@ -84,6 +86,9 @@ export default {
     },
     onNext() {
       this.viewDate = dateUtils.addMonths(this.viewDate, 1);
+    },
+    selectDate(date) {
+      this.selectedDate = date;
     }
   }
 }
