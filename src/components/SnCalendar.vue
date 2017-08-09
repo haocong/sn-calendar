@@ -126,7 +126,7 @@ export default {
           el.classList.remove('out'); // animate to start position
         }
         el.classList.add('in');
-      }, 50);
+      });
 
       setTimeout(function() {
         try {
