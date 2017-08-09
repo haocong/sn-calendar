@@ -168,6 +168,7 @@ export default {
 }
 
 #viewingMonthYear {
+  height: 48px;
   overflow: hidden;
 }
 
@@ -214,7 +215,6 @@ export default {
   position: absolute;
   left: 50%;
   top: 50%;
-  z-index: 1;
   margin-left: -18px;
   margin-top: -19px;
   background: #fd37a4;
@@ -233,17 +233,15 @@ export default {
 
 .sn-calendar__days__day div {
   z-index: 1;
-  transition: all .2s;
-  -webkit-transition: all .2s;
 }
 
 .sn-calendar__days__day[selected] div {
   color: #FFF;
-  font-weight: 600;
+  font-weight: bold;
 }
 
 .sn-calendar__days__day.currentDay {
-  font-weight: 600;
+  font-weight: bold;
   color: red;
 }
 
@@ -252,8 +250,9 @@ export default {
   -webkit-transition: all .3s cubic-bezier(0.390, 0.575, 0.135, 0.995);
   width: 100%;
   position: absolute;
-  top: 0;
   left: 0;
+  top: 0;
+  will-change: transform;
   -webkit-transform: translateX(100%);
   transform: translateX(100%);
 }
