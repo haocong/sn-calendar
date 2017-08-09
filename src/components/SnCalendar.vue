@@ -5,7 +5,7 @@
         <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></g></svg>
       </v-touch>
       <div id="viewingMonthYear" class="flex relative">
-        <h4 class="viewingMonthYear">{{viewMonth}} {{viewYear}}</h4>
+        <h4 class="viewingMonthYear slideHorizontal in">{{viewMonth}} {{viewYear}}</h4>
       </div>
       <v-touch class="sn-calendar__month__arrow right" v-on:tap="onNext">
         <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></g></svg>
@@ -14,21 +14,21 @@
     <div class="sn-calendar__weekday layout horizontal center">
       <div class="sn-calendar__weekday__name" v-for="weekDay of weekDays">{{weekDay}}</div>
     </div>
-    <v-touch class="sn-calendar__days layout horizontal wrap"
-      v-on:swipeleft="onNext"
-      v-on:swiperight="onPrev">
-      <template v-for="week of viewDateMatrix">
-        <v-touch class="sn-calendar__days__day layout horizontal center-center" v-for="(date, index) of week"
-          :key="index"
-          :class="[date.curClass, date.offClass]"
-          :date="date.fullDate"
-          :selected="date.selected"
-          v-on:tap="selectDate(date.fullDate)">
-          <div class="after"></div>
-          <div class="layout center">{{date.shortDate}}</div>
-        </v-touch>
-      </template>
-    </v-touch>
+    <div class="sn-calendar__days">
+      <v-touch class="layout horizontal wrap slideHorizontal in" v-on:swipeleft="onNext" v-on:swiperight="onPrev">
+        <template v-for="week of viewDateMatrix">
+          <v-touch class="sn-calendar__days__day layout horizontal center-center" v-for="(date, index) of week"
+            :key="index"
+            :class="[date.curClass, date.offClass]"
+            :date="date.fullDate"
+            :selected="date.selected"
+            v-on:tap="selectDate(date.fullDate)">
+            <div class="after"></div>
+            <div class="layout center">{{date.shortDate}}</div>
+          </v-touch>
+        </template>
+      </v-touch>
+    </div>
   </div>
 </template>
 
@@ -44,7 +44,9 @@ export default {
     return {
       viewDate: new Date(),
       selectedDate: new Date(),
-      nowDate: new Date()
+      nowDate: new Date(),
+      disablePropertyAnimations: false,
+      reverseAnimation: false
     }
   },
 
@@ -61,6 +63,21 @@ export default {
     },
     viewYear() {
       return this.viewDate.getFullYear();
+    }
+  },
+
+  watch: {
+    viewDate(newDate, oldDate) {
+      if (dateUtils.isEqualMonth(newDate, oldDate)) {
+        return;
+      }
+      let animatedElems = [...document.querySelectorAll('.slideHorizontal')];
+
+      this.reverseAnimation = oldDate && oldDate.getTime() > newDate.getTime();
+
+      for(let elem of animatedElems) {
+        this._renderNode(elem, this.reverseAnimation);
+      }
     }
   },
 
@@ -81,6 +98,43 @@ export default {
           };
         });
       });
+    },
+    _renderNode(element, reverse) {
+      if (this.disablePropertyAnimations){
+        return;
+      }
+      var delayRemovalTime = 400;
+      var el = element;
+      var elClone = el.cloneNode(true);
+
+      el._originalTransition = element.style.transition;
+      el.style.transition = 'none';
+      el.parentElement.appendChild(elClone);
+
+      if (!reverse) {
+        el.classList.remove('in'); // back to start position immediately
+      } else {
+        el.classList.add('out'); // go to end position immediately
+      }
+
+      setTimeout(function() {
+        el.style.transition = el._originalTransition;
+        if (!reverse) {
+          elClone.classList.add('out'); // animate to end position
+        } else {
+          elClone.classList.remove('in'); // animate to start position
+          el.classList.remove('out'); // animate to start position
+        }
+        el.classList.add('in');
+      }, 50);
+
+      setTimeout(function() {
+        try {
+          el.parentElement.removeChild(elClone);
+        } catch (err) {
+          console.log(err.message);
+        }
+      }, delayRemovalTime);
     },
     onPrev() {
       this.viewDate = dateUtils.addMonths(this.viewDate, -1);
@@ -138,8 +192,11 @@ export default {
 }
 
 .sn-calendar__days {
+  position: relative;
   padding: 0 12px;
+  height: 216px;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .sn-calendar__days__day {
@@ -188,5 +245,26 @@ export default {
 .sn-calendar__days__day.currentDay {
   font-weight: 600;
   color: red;
+}
+
+.slideHorizontal {
+  transition: all .3s cubic-bezier(0.390, 0.575, 0.135, 0.995);
+  -webkit-transition: all .3s cubic-bezier(0.390, 0.575, 0.135, 0.995);
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  -webkit-transform: translateX(100%);
+  transform: translateX(100%);
+}
+
+.slideHorizontal.in {
+  -webkit-transform: translateX(0);
+  transform: translateX(0);
+}
+
+.slideHorizontal.out {
+  -webkit-transform: translateX(-100%);
+  transform: translateX(-100%);
 }
 </style>
