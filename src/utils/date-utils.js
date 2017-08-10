@@ -80,5 +80,10 @@ export default {
     m += d1.getMonth();
     m -= d2.getMonth();
     return m;
+  },
+
+  dayDiff: function(d1, d2) {
+    return Math.abs(parseInt((d1 - d2) / 1000 / 60 / 60 / 24));
   }
+
 }

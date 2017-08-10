@@ -24,7 +24,8 @@
             :selected="date.selected"
             v-on:tap="selectDate(date.fullDate)">
             <div class="after"></div>
-            <div class="layout center">{{date.shortDate}}</div>
+            <div class="short-date layout center">{{date.shortDate}}</div>
+            <div class="event">{{date.event ? date.event.title : ''}}</div>
           </v-touch>
         </template>
       </v-touch>
@@ -46,17 +47,15 @@ export default {
       selectedDate: new Date(),
       nowDate: new Date(),
       disablePropertyAnimations: false,
-      reverseAnimation: false
+      reverseAnimation: false,
+      eventList: [],
+      viewDateMatrix: []
     }
   },
 
   computed: {
     weekDays() {
       return localeString[this.locale].shortDayNames;
-    },
-    viewDateMatrix() {
-      let weeksFull = dateUtils.getWeekArray(this.viewDate);
-      return this._enhanceWeeks(weeksFull);
     },
     viewMonth() {
       return localeString[this.locale].monthNames[this.viewDate.getMonth()];
@@ -66,11 +65,18 @@ export default {
     }
   },
 
+  created() {
+    this._resetViewDateMatrix();
+  },
+
   watch: {
     viewDate(newDate, oldDate) {
       if (dateUtils.isEqualMonth(newDate, oldDate)) {
         return;
       }
+
+      this._resetViewDateMatrix();
+
       let animatedElems = [...document.querySelectorAll('.slideHorizontal')];
 
       this.reverseAnimation = oldDate && oldDate.getTime() > newDate.getTime();
@@ -82,6 +88,14 @@ export default {
   },
 
   methods: {
+    _setEventList() {
+      return this.$http.get(this.agenda).then(res => this.eventList = res.body);
+    },
+    _resetViewDateMatrix() {
+      let weeksFull = dateUtils.getWeekArray(this.viewDate);
+      this.viewDateMatrix = this._enhanceWeeks(weeksFull);
+      this._recalculateEvent();
+    },
     _enhanceWeeks(weeksFull) {
       var self = this;
       return weeksFull.map(function(week) {
@@ -94,8 +108,35 @@ export default {
             shortDate: day ? day.getDate() : null,
             offClass: !dateUtils.isEqualMonth(day, self.viewDate) ? 'offDay':'',
             curClass: dateUtils.isEqualDate(day, self.nowDate) ? 'currentDay' : '',
-            selected: dateUtils.isEqualDate(day, self.selectedDate)
+            selected: dateUtils.isEqualDate(day, self.selectedDate),
+            event: null
           };
+        });
+      });
+    },
+    _recalculateEvent() {
+      if (!this.eventList.length) {
+        this._setEventList().then(this._recalculateEvent);
+        return;
+      }
+      let eventList = this.eventList;
+      let vdMatrix = this.viewDateMatrix;
+      this.viewDateMatrix = vdMatrix.map((week) => {
+        return week.map((day) => {
+          if(!day.fullDate) {
+            return day;
+          }
+          let dayClone = Object.assign({}, day);
+          eventList.forEach((evt) => {
+            let pinDate = new Date(evt.pinDate);
+            let timeSpan = dateUtils.dayDiff(pinDate, dayClone.fullDate);
+            if (timeSpan % evt.cycle === 0) {
+              dayClone.event = {
+                title: evt.title
+              }
+            }
+          });
+          return dayClone;
         });
       });
     },
@@ -126,7 +167,7 @@ export default {
           el.classList.remove('out'); // animate to start position
         }
         el.classList.add('in');
-      });
+      }, 0);
 
       setTimeout(function() {
         try {
@@ -144,6 +185,7 @@ export default {
     },
     selectDate(date) {
       this.selectedDate = date;
+      this._resetViewDateMatrix();
     }
   }
 }
@@ -195,7 +237,7 @@ export default {
 .sn-calendar__days {
   position: relative;
   padding: 0 12px;
-  height: 216px;
+  height: 390px;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -204,19 +246,19 @@ export default {
   box-sizing: border-box;
   cursor: pointer;
   width: 14.285%;
-  height: 36px;
+  height: 64px;
   position: relative;
 }
 
 .sn-calendar__days__day .after {
   border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  width: 24px;
+  height: 24px;
   position: absolute;
   left: 50%;
   top: 50%;
-  margin-left: -18px;
-  margin-top: -19px;
+  margin-left: -12px;
+  margin-top: -13px;
   background: #fd37a4;
   -webkit-transform: scale(0);
   transform: scale(0);
@@ -235,14 +277,19 @@ export default {
   z-index: 1;
 }
 
-.sn-calendar__days__day[selected] div {
-  color: #FFF;
+.sn-calendar__days__day[selected] .short-date {
+  color: #FFF !important;
   font-weight: bold;
 }
 
-.sn-calendar__days__day.currentDay {
+.sn-calendar__days__day.currentDay .short-date{
   font-weight: bold;
   color: red;
+}
+
+.sn-calendar__days__day .event {
+  position: absolute;
+  bottom: 0;
 }
 
 .slideHorizontal {

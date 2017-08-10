@@ -1,5 +1,25 @@
-{
+[{
 	"title": "入早",
-	"cycle": 2,
-	"pinDate": "2017/08/08"
-}
+	"cycle": 18,
+	"pinDate": "2017/06/26"
+},{
+  "title": "入晚",
+  "cycle": 18,
+  "pinDate": "2017/06/29"
+},{
+  "title": "码头",
+  "cycle": 18,
+  "pinDate": "2017/07/02"
+},{
+  "title": "出早",
+  "cycle": 18,
+  "pinDate": "2017/07/05"
+},{
+  "title": "出晚",
+  "cycle": 18,
+  "pinDate": "2017/07/08"
+},{
+  "title": "加强",
+  "cycle": 18,
+  "pinDate": "2017/07/11"
+}]
