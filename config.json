@@ -1,25 +1,31 @@
 [{
 	"title": "入早",
 	"cycle": 18,
-	"pinDate": "2017/06/26"
+	"pinDate": "2017/06/26",
+  "tag": "morning_in"
 },{
   "title": "入晚",
   "cycle": 18,
-  "pinDate": "2017/06/29"
+  "pinDate": "2017/06/29",
+  "tag": "night_in"
 },{
   "title": "码头",
   "cycle": 18,
-  "pinDate": "2017/07/02"
+  "pinDate": "2017/07/02",
+  "tag": "pier"
 },{
   "title": "出早",
   "cycle": 18,
-  "pinDate": "2017/07/05"
+  "pinDate": "2017/07/05",
+  "tag": "morning_out"
 },{
   "title": "出晚",
   "cycle": 18,
-  "pinDate": "2017/07/08"
+  "pinDate": "2017/07/08",
+  "tag": "night_out"
 },{
   "title": "加强",
   "cycle": 18,
-  "pinDate": "2017/07/11"
+  "pinDate": "2017/07/11",
+  "tag": "strength"
 }]

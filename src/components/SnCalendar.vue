@@ -25,7 +25,7 @@
             v-on:tap="selectDate(date.fullDate)">
             <div class="after"></div>
             <div class="short-date layout center">{{date.shortDate}}</div>
-            <div class="event">{{date.event ? date.event.title : ''}}</div>
+            <div class="event" :class="date.event.tag" v-if="date.event">{{date.event.title}}</div>
           </v-touch>
         </template>
       </v-touch>
@@ -132,7 +132,8 @@ export default {
             let timeSpan = dateUtils.dayDiff(pinDate, dayClone.fullDate);
             if (timeSpan % evt.cycle === 0) {
               dayClone.event = {
-                title: evt.title
+                title: evt.title,
+                tag: evt.tag
               }
             }
           });
@@ -259,7 +260,7 @@ export default {
   top: 50%;
   margin-left: -12px;
   margin-top: -13px;
-  background: #fd37a4;
+  background: #2196F3;
   -webkit-transform: scale(0);
   transform: scale(0);
   opacity: 0;
@@ -284,12 +285,40 @@ export default {
 
 .sn-calendar__days__day.currentDay .short-date{
   font-weight: bold;
-  color: red;
+  color: #2196F3;
 }
 
 .sn-calendar__days__day .event {
   position: absolute;
   bottom: 0;
+  border-radius: 2px;
+  line-height: 1;
+  padding: 2px 4px;
+  color: #fff;
+}
+
+.sn-calendar__days__day .morning_in {
+  background: #3F51B5;
+}
+
+.sn-calendar__days__day .morning_out {
+  background: #8BC34A;
+}
+
+.sn-calendar__days__day .pier {
+  background: #F90093;
+}
+
+.sn-calendar__days__day .night_in {
+  background: #FFC107;
+}
+
+.sn-calendar__days__day .night_out {
+  background: #795548;
+}
+
+.sn-calendar__days__day .strength {
+  background: #FF5722;
 }
 
 .slideHorizontal {
