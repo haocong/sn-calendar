@@ -7,10 +7,10 @@
     </div>
     <div id="selectedDateHeader" class="sn-calendar__header layout vertical center center-justified">
       <div id="selectedMonth">
-        <div class="selectedMonth slideup" style="text-transform: uppercase">{{selectedMonth}}</div>
+        <div class="selectedMonth slideVertical in" style="text-transform: uppercase">{{selectedMonth}}</div>
       </div>
       <div id="selectedDay">
-        <div class="selectedDay slideup">{{selectedDay}}</div>
+        <div class="selectedDay slideVertical in">{{selectedDay}}</div>
       </div>
       <div id="sn-message" class="layout horizontal center-center">
         <h1 class="msg-content fade in">{{nowMessage || '休息日 ^_^'}}</h1>
@@ -121,6 +121,16 @@ export default {
       let messages = dayDetail.event ? dayDetail.event.msg : [];
       clearTimeout(this.timeoutID);
       this._blinkMsg(messages, 2000);
+
+      this.reverseAnimation = oldDate && oldDate.getTime() > newDate.getTime();
+
+      if (!dateUtils.isEqualMonth(newDate, oldDate)) {
+        this._renderNode(this.$el.querySelector('.selectedMonth'), this.reverseAnimation);
+      }
+
+      this._renderNode(this.$el.querySelector('.selectedDay'), this.reverseAnimation);
+      this._renderNode(this.$el.querySelector('.selectedWeekday'), this.reverseAnimation);
+
     },
     nowMessage(newMsg) {
       let elem  = this.$el.querySelector('.msg-content');
@@ -260,21 +270,25 @@ export default {
 #selectedWeekdayHeader {
   color: #FFF;
   height: 36px;
-  background: #3f51b5;
+  background: #71285b;
   overflow: hidden;
   -webkit-transition: all .3s;
   transition: all .3s;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
 }
 
 #selectedDateHeader {
   box-sizing: border-box;
-  background: #495bbf;
+  background: #822e69;
   color: #FFF;
   padding: 12px 0;
-  -webkit-transition: all .3s;
-  transition: all .3s;
+}
+
+#selectedMonth {
+  height: 20px;
+}
+
+#selectedDay {
+  height: 60px;
 }
 
 #selectedDateHeader > div {
@@ -365,7 +379,7 @@ export default {
   top: 50%;
   margin-left: -15px;
   margin-top: -16px;
-  background: #3f51b5;
+  background: #822e69;
   -webkit-transform: scale(0);
   transform: scale(0);
   opacity: 0;
