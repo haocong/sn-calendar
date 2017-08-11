@@ -347,7 +347,7 @@ export default {
 
 #wrapper {
   height: calc(100vh - 196px);
-  overflow: scroll;
+  overflow: auto;
 }
 
 .sn-calendar__month,
