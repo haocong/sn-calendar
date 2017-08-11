@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="layout horizontal center">
+  <div id="app" class="layout horizontal center-center">
     <sn-calendar agenda="/config.json" locale="zh-CN"></sn-calendar>
   </div>
 </template>

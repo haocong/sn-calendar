@@ -31,7 +31,7 @@
       <div class="sn-calendar__weekday__name" v-for="weekDay of weekDays">{{weekDay}}</div>
     </div>
     <div class="sn-calendar__days">
-      <v-touch class="layout horizontal wrap slideHorizontal in" v-on:swipeleft="onNext" v-on:swiperight="onPrev">
+      <v-touch class="layout horizontal wrap slideHorizontal in" v-bind:swipe-options="{direction:'horizontal'}" v-on:swipeleft="onNext" v-on:swiperight="onPrev">
         <template v-for="week of viewDateMatrix">
           <v-touch class="sn-calendar__days__day layout horizontal center-center" v-for="(date, index) of week"
             :key="index"
