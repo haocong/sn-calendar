@@ -16,35 +16,37 @@
         <h1 class="msg-content fade in">{{nowMessage || '休息日 ^_^'}}</h1>
       </div>
     </div>
-    <div class="sn-calendar__month layout horizontal">
-      <v-touch class="sn-calendar__month__arrow left" v-on:tap="onPrev">
-        <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></g></svg>
-      </v-touch>
-      <div id="viewingMonthYear" class="flex relative">
-        <h4 class="viewingMonthYear slideHorizontal in">{{viewMonth}}</h4>
+    <div id="wrapper">
+      <div class="sn-calendar__month layout horizontal">
+        <v-touch class="sn-calendar__month__arrow left" v-on:tap="onPrev">
+          <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></g></svg>
+        </v-touch>
+        <div id="viewingMonthYear" class="flex relative">
+          <h4 class="viewingMonthYear slideHorizontal in">{{viewMonth}}</h4>
+        </div>
+        <v-touch class="sn-calendar__month__arrow right" v-on:tap="onNext">
+          <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></g></svg>
+        </v-touch>
       </div>
-      <v-touch class="sn-calendar__month__arrow right" v-on:tap="onNext">
-        <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></g></svg>
-      </v-touch>
-    </div>
-    <div class="sn-calendar__weekday layout horizontal center">
-      <div class="sn-calendar__weekday__name" v-for="weekDay of weekDays">{{weekDay}}</div>
-    </div>
-    <div class="sn-calendar__days">
-      <v-touch class="layout horizontal wrap slideHorizontal in" v-bind:swipe-options="{direction:'horizontal'}" v-on:swipeleft="onNext" v-on:swiperight="onPrev">
-        <template v-for="week of viewDateMatrix">
-          <v-touch class="sn-calendar__days__day layout horizontal center-center" v-for="(date, index) of week"
-            :key="index"
-            :class="[date.curClass, date.offClass]"
-            :date="date.fullDate"
-            :selected="date.selected"
-            v-on:tap="selectDate(date.fullDate)">
-            <div class="after"></div>
-            <div class="short-date layout center">{{date.shortDate}}</div>
-            <div class="event" :class="date.event.tag" v-if="date.event">{{date.event.title}}</div>
-          </v-touch>
-        </template>
-      </v-touch>
+      <div class="sn-calendar__weekday layout horizontal center">
+        <div class="sn-calendar__weekday__name" v-for="weekDay of weekDays">{{weekDay}}</div>
+      </div>
+      <div class="sn-calendar__days">
+        <v-touch class="layout horizontal wrap slideHorizontal in" v-bind:swipe-options="{direction:'horizontal'}" v-on:swipeleft="onNext" v-on:swiperight="onPrev">
+          <template v-for="week of viewDateMatrix">
+            <v-touch class="sn-calendar__days__day layout horizontal center-center" v-for="(date, index) of week"
+              :key="index"
+              :class="[date.curClass, date.offClass]"
+              :date="date.fullDate"
+              :selected="date.selected"
+              v-on:tap="selectDate(date.fullDate)">
+              <div class="after"></div>
+              <div class="short-date layout center">{{date.shortDate}}</div>
+              <div class="event" :class="date.event.tag" v-if="date.event">{{date.event.title}}</div>
+            </v-touch>
+          </template>
+        </v-touch>
+      </div>
     </div>
   </div>
 </template>
@@ -281,6 +283,7 @@ export default {
   background: #822e69;
   color: #FFF;
   padding: 12px 0;
+  box-shadow: 0 1px 8px rgb(113, 40, 91);
 }
 
 #selectedMonth {
@@ -340,6 +343,11 @@ export default {
   line-height: 48px;
   letter-spacing: 0.02em;
   text-align: center;
+}
+
+#wrapper {
+  height: calc(100vh - 196px);
+  overflow: scroll;
 }
 
 .sn-calendar__month,
