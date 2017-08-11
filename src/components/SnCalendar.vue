@@ -420,6 +420,7 @@ export default {
   bottom: 0;
   border-radius: 2px;
   line-height: 1;
+  white-space:nowrap;
   padding: 2px 4px;
   color: #fff;
 }
