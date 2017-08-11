@@ -57,6 +57,12 @@ export default {
     return weekArray;
   },
 
+  getWeekOfMonth: function(date) {
+    let week = date.getDay();
+    let day = date.getDate();
+    return Math.ceil((day + 6 - week) / 7);
+  },
+
   isValidDate: function(date) {
     return !isNaN(Date.parse(date));
   },

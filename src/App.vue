@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="fullbleed layout horizontal center-center">
+  <div id="app" class="layout horizontal center">
     <sn-calendar agenda="/config.json" locale="zh-CN"></sn-calendar>
   </div>
 </template>
@@ -14,13 +14,16 @@ export default {
 </script>
 
 <style>
+html, body {
+  margin: 0;
+}
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
   -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 

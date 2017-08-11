@@ -1,11 +1,27 @@
 <template>
   <div class="sn-calendar">
+    <div id="selectedWeekdayHeader" class="layout horizontal">
+      <div class="relative flex" id="selectedWeekday">
+        <div class="selectedWeekday slideVertical in">{{selectedWeekday}}</div>
+      </div>
+    </div>
+    <div id="selectedDateHeader" class="sn-calendar__header layout vertical center center-justified">
+      <div id="selectedMonth">
+        <div class="selectedMonth slideup" style="text-transform: uppercase">{{selectedMonth}}</div>
+      </div>
+      <div id="selectedDay">
+        <div class="selectedDay slideup">{{selectedDay}}</div>
+      </div>
+      <div id="sn-message" class="layout horizontal center-center">
+        <h1 class="msg-content fade in">{{nowMessage || '休息日 ^_^'}}</h1>
+      </div>
+    </div>
     <div class="sn-calendar__month layout horizontal">
       <v-touch class="sn-calendar__month__arrow left" v-on:tap="onPrev">
         <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></g></svg>
       </v-touch>
       <div id="viewingMonthYear" class="flex relative">
-        <h4 class="viewingMonthYear slideHorizontal in">{{viewMonth}} {{viewYear}}</h4>
+        <h4 class="viewingMonthYear slideHorizontal in">{{viewMonth}}</h4>
       </div>
       <v-touch class="sn-calendar__month__arrow right" v-on:tap="onNext">
         <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></g></svg>
@@ -45,9 +61,9 @@ export default {
     return {
       viewDate: new Date(),
       selectedDate: new Date(),
-      nowDate: new Date(),
       disablePropertyAnimations: false,
       reverseAnimation: false,
+      nowMessage: '',
       eventList: [],
       viewDateMatrix: []
     }
@@ -62,6 +78,18 @@ export default {
     },
     viewYear() {
       return this.viewDate.getFullYear();
+    },
+    selectedYear() {
+      return this.selectedDate.getFullYear();
+    },
+    selectedMonth() {
+      return localeString[this.locale].monthNames[this.selectedDate.getMonth()];
+    },
+    selectedDay() {
+      return this.selectedDate.getDate();
+    },
+    selectedWeekday() {
+      return localeString[this.locale].dayNames[this.selectedDate.getDay()];
     }
   },
 
@@ -77,13 +105,26 @@ export default {
 
       this._resetViewDateMatrix();
 
-      let animatedElems = [...document.querySelectorAll('.slideHorizontal')];
+      let animatedElems = [...this.$el.querySelectorAll('.slideHorizontal')];
 
       this.reverseAnimation = oldDate && oldDate.getTime() > newDate.getTime();
 
       for(let elem of animatedElems) {
         this._renderNode(elem, this.reverseAnimation);
       }
+    },
+    selectedDate(newDate, oldDate) {
+      this._resetViewDateMatrix();
+      let weekIndex = dateUtils.getWeekOfMonth(newDate) - 1;
+      let dayIndex = newDate.getDay();
+      let dayDetail = this.viewDateMatrix[weekIndex][dayIndex];
+      let messages = dayDetail.event ? dayDetail.event.msg : [];
+      clearTimeout(this.timeoutID);
+      this._blinkMsg(messages, 2000);
+    },
+    nowMessage(newMsg) {
+      let elem  = this.$el.querySelector('.msg-content');
+      this._renderNode(elem, false);
     }
   },
 
@@ -133,7 +174,8 @@ export default {
             if (timeSpan % evt.cycle === 0) {
               dayClone.event = {
                 title: evt.title,
-                tag: evt.tag
+                tag: evt.tag,
+                msg: evt.msg
               }
             }
           });
@@ -178,6 +220,22 @@ export default {
         }
       }, delayRemovalTime);
     },
+    _blinkMsg(msgArray, ms) {
+      let length = msgArray.length;
+      let self = this;
+      if (!length) {
+        self.nowMessage = '';
+        return;
+      }
+
+      let counter = 0;
+
+      (function doBlink() {
+        self.nowMessage = msgArray[counter];
+        counter = (counter + 1) % length;
+        self.timeoutID = setTimeout(doBlink, ms);
+      })();
+    },
     onPrev() {
       this.viewDate = dateUtils.addMonths(this.viewDate, -1);
     },
@@ -186,7 +244,6 @@ export default {
     },
     selectDate(date) {
       this.selectedDate = date;
-      this._resetViewDateMatrix();
     }
   }
 }
@@ -197,7 +254,55 @@ export default {
   font-size: 12px;
   line-height: 24px;
   width: 100%;
-  max-width: 357px;
+  max-width: 378px;
+}
+
+#selectedWeekdayHeader {
+  color: #FFF;
+  height: 36px;
+  background: #3f51b5;
+  overflow: hidden;
+  -webkit-transition: all .3s;
+  transition: all .3s;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+}
+
+#selectedDateHeader {
+  box-sizing: border-box;
+  background: #495bbf;
+  color: #FFF;
+  padding: 12px 0;
+  -webkit-transition: all .3s;
+  transition: all .3s;
+}
+
+#selectedDateHeader > div {
+  width: 100%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.selectedWeekday {
+  font-size: 14px;
+  line-height: 36px;
+  text-align: center;
+  margin: 0;
+  font-weight: 400;
+}
+
+.selectedMonth,
+.selectedYear {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0.05em;
+}
+
+.selectedDay {
+  font-size: 56px;
+  line-height: 60px;
 }
 
 .sn-calendar__month__arrow {
@@ -225,7 +330,7 @@ export default {
 
 .sn-calendar__month,
 .sn-calendar__weekday {
-  margin: 0 12px;
+  margin: 0;
 }
 
 .sn-calendar__weekday__name {
@@ -237,7 +342,7 @@ export default {
 
 .sn-calendar__days {
   position: relative;
-  padding: 0 12px;
+  padding: 0;
   height: 390px;
   box-sizing: border-box;
   overflow: hidden;
@@ -253,14 +358,14 @@ export default {
 
 .sn-calendar__days__day .after {
   border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   position: absolute;
   left: 50%;
   top: 50%;
-  margin-left: -12px;
-  margin-top: -13px;
-  background: #2196F3;
+  margin-left: -15px;
+  margin-top: -16px;
+  background: #3f51b5;
   -webkit-transform: scale(0);
   transform: scale(0);
   opacity: 0;
@@ -285,7 +390,7 @@ export default {
 
 .sn-calendar__days__day.currentDay .short-date{
   font-weight: bold;
-  color: #2196F3;
+  color: #3f51b5;
 }
 
 .sn-calendar__days__day .event {
@@ -321,6 +426,34 @@ export default {
   background: #FF5722;
 }
 
+.slideVertical {
+  transition: all .4s cubic-bezier(0.390, 0.575, 0.135, 0.995);
+  -webkit-transition: all .4s cubic-bezier(0.390, 0.575, 0.135, 0.995);
+  position: absolute;
+  -webkit-transform: translateY(100%);
+  transform: translateY(100%);
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  opacity: 0;
+  z-index: 0;
+}
+
+.slideVertical.in {
+  -webkit-transform: translateY(0px);
+  transform: translateY(0px);
+  z-index: 1;
+  opacity: 0.9;
+}
+
+.slideVertical.out {
+  -webkit-transform: translateY(-100%);
+  transform: translateY(-100%);
+  z-index: 0;
+  opacity: 0;
+}
+
 .slideHorizontal {
   transition: all .3s cubic-bezier(0.390, 0.575, 0.135, 0.995);
   -webkit-transition: all .3s cubic-bezier(0.390, 0.575, 0.135, 0.995);
@@ -342,4 +475,34 @@ export default {
   -webkit-transform: translateX(-100%);
   transform: translateX(-100%);
 }
+
+#sn-message {
+  height: 56px;
+}
+
+.fade {
+  transition: all .3s cubic-bezier(0.390, 0.575, 0.135, 0.995);
+  -webkit-transition: all .3s cubic-bezier(0.390, 0.575, 0.135, 0.995);
+  position: absolute;
+  left: 0;
+  width: 100%;
+  top: 0;
+  bottom: 0;
+  opacity: 0;
+  -webkit-transform: scale(0.8);
+  transform: scale(0.8);
+}
+
+.fade.in {
+  opacity: 1;
+  -webkit-transform: scale(1);
+  transform: scale(1);
+}
+
+.fade.out {
+  opacity: 0;
+  -webkit-transform: scale(0.8);
+  transform: scale(0.8);
+}
+
 </style>
