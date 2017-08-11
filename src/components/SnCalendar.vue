@@ -418,8 +418,10 @@ export default {
 .sn-calendar__days__day .event {
   position: absolute;
   bottom: 0;
+  left: 50%;
+  margin-left: -16px;
   border-radius: 2px;
-  line-height: 1;
+  line-height: 12px;
   white-space:nowrap;
   padding: 2px 4px;
   color: #fff;
