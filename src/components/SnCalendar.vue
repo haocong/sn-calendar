@@ -63,6 +63,7 @@ export default {
     return {
       viewDate: new Date(),
       selectedDate: new Date(),
+      nowDate: new Date(),
       disablePropertyAnimations: false,
       reverseAnimation: false,
       nowMessage: '',
@@ -414,8 +415,8 @@ export default {
 }
 
 .sn-calendar__days__day.currentDay .short-date{
-  font-weight: bold;
-  color: #3f51b5;
+  font-weight: bolder;
+  color: #822e69;
 }
 
 .sn-calendar__days__day .event {
