@@ -117,12 +117,6 @@ export default {
     },
     selectedDate(newDate, oldDate) {
       this._resetViewDateMatrix();
-      let weekIndex = dateUtils.getWeekOfMonth(newDate) - 1;
-      let dayIndex = newDate.getDay();
-      let dayDetail = this.viewDateMatrix[weekIndex][dayIndex];
-      let messages = dayDetail.event ? dayDetail.event.msg : [];
-      clearTimeout(this.timeoutID);
-      this._blinkMsg(messages, 2000);
 
       this.reverseAnimation = oldDate && oldDate.getTime() > newDate.getTime();
 
@@ -194,6 +188,15 @@ export default {
           return dayClone;
         });
       });
+      this._showMessage();
+    },
+    _showMessage() {
+      let weekIndex = dateUtils.getWeekOfMonth(this.selectedDate) - 1;
+      let dayIndex = this.selectedDate.getDay();
+      let dayDetail = this.viewDateMatrix[weekIndex][dayIndex];
+      let messages = dayDetail.event ? dayDetail.event.msg : [];
+      clearTimeout(this.timeoutID);
+      this._blinkMsg(messages, 2000);
     },
     _renderNode(element, reverse) {
       if (this.disablePropertyAnimations){
