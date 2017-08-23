@@ -31,8 +31,20 @@
       <div class="sn-calendar__weekday layout horizontal center">
         <div class="sn-calendar__weekday__name" v-for="weekDay of weekDays">{{weekDay}}</div>
       </div>
-      <div class="sn-calendar__days">
-        <v-touch class="layout horizontal wrap slideHorizontal in" v-bind:swipe-options="{direction:'horizontal'}" v-on:swipeleft="onNext" v-on:swiperight="onPrev">
+      <div class="sn-calendar__days" style="transform: translateX(-33.333%);">
+        <div class="layout horizontal wrap weekMatrix">
+          <template v-for="week of prevMonthMatrix">
+            <div class="sn-calendar__days__day layout horizontal center-center" v-for="(date, index) of week"
+              :key="index"
+              :class="[date.curClass, date.offClass]"
+              :date="date.fullDate">
+              <div class="after"></div>
+              <div class="short-date layout center">{{date.shortDate}}</div>
+              <div class="event" :class="date.event.tag" v-if="date.event">{{date.event.title}}</div>
+            </div>
+          </template>
+        </div>
+        <v-touch class="layout horizontal wrap weekMatrix" v-bind:swipe-options="{direction:'horizontal'}" v-on:swipeleft="onNext" v-on:swiperight="onPrev">
           <template v-for="week of viewDateMatrix">
             <v-touch class="sn-calendar__days__day layout horizontal center-center" v-for="(date, index) of week"
               :key="index"
@@ -46,6 +58,18 @@
             </v-touch>
           </template>
         </v-touch>
+        <div class="layout horizontal wrap weekMatrix">
+          <template v-for="week of nextMonthMatrix">
+            <div class="sn-calendar__days__day layout horizontal center-center" v-for="(date, index) of week"
+              :key="index"
+              :class="[date.curClass, date.offClass]"
+              :date="date.fullDate">
+              <div class="after"></div>
+              <div class="short-date layout center">{{date.shortDate}}</div>
+              <div class="event" :class="date.event.tag" v-if="date.event">{{date.event.title}}</div>
+            </div>
+          </template>
+        </div>
       </div>
     </div>
   </div>
@@ -68,7 +92,9 @@ export default {
       reverseAnimation: false,
       nowMessage: '',
       eventList: [],
-      viewDateMatrix: []
+      viewDateMatrix: [],
+      nextMonthMatrix: [],
+      prevMonthMatrix: []
     }
   },
 
@@ -97,7 +123,7 @@ export default {
   },
 
   created() {
-    this._resetViewDateMatrix();
+    this._resetDateMatrix();
   },
 
   watch: {
@@ -106,18 +132,14 @@ export default {
         return;
       }
 
-      this._resetViewDateMatrix();
-
-      let animatedElems = [...this.$el.querySelectorAll('.slideHorizontal')];
+      this._resetDateMatrix();
 
       this.reverseAnimation = oldDate && oldDate.getTime() > newDate.getTime();
 
-      for(let elem of animatedElems) {
-        this._renderNode(elem, this.reverseAnimation);
-      }
+      this._animateMonths(this.$el.querySelector('.sn-calendar__days'), this.reverseAnimation);
     },
     selectedDate(newDate, oldDate) {
-      this._resetViewDateMatrix();
+      this._resetDateMatrix();
 
       this.reverseAnimation = oldDate && oldDate.getTime() > newDate.getTime();
 
@@ -137,11 +159,19 @@ export default {
 
   methods: {
     _setEventList() {
+      if(!this.agenda)
+        return Promise.reject(null);
       return this.$http.get(this.agenda).then(res => this.eventList = res.body);
     },
-    _resetViewDateMatrix() {
+    _resetDateMatrix() {
       let weeksFull = dateUtils.getWeekArray(this.viewDate);
+      let nextMonth = dateUtils.addMonths(this.viewDate, 1);
+      let prevMonth = dateUtils.addMonths(this.viewDate, -1);
+      let nextMonthMatrix = dateUtils.getWeekArray(nextMonth);
+      let prevMonthMatrix = dateUtils.getWeekArray(prevMonth);
       this.viewDateMatrix = this._enhanceWeeks(weeksFull);
+      this.prevMonthMatrix = this._enhanceWeeks(prevMonthMatrix);
+      this.nextMonthMatrix = this._enhanceWeeks(nextMonthMatrix);
       this._recalculateEvent();
     },
     _enhanceWeeks(weeksFull) {
@@ -164,7 +194,7 @@ export default {
     },
     _recalculateEvent() {
       if (!this.eventList.length) {
-        this._setEventList().then(this._recalculateEvent);
+        this._setEventList().then(this._recalculateEvent).catch(res => console.info(`${res} event!`));
         return;
       }
       let eventList = this.eventList;
@@ -235,6 +265,15 @@ export default {
           console.log(err.message);
         }
       }, delayRemovalTime);
+    },
+    _animateMonths(element, reverse) {
+      let originalTransition = element.style.transition;
+      element.style.transition = 'none';
+      element.style.transform = reverse ? 'translateX(-66.6667%)' : 'translateX(0)';
+      setTimeout(function() {
+        element.style.transition = originalTransition;
+        element.style.transform = 'translateX(-33.3333%)';
+      }, 0);
     },
     _blinkMsg(msgArray, ms) {
       let length = msgArray.length;
@@ -351,7 +390,8 @@ export default {
 
 #wrapper {
   height: calc(100vh - 196px);
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sn-calendar__month,
@@ -367,11 +407,14 @@ export default {
 }
 
 .sn-calendar__days {
-  position: relative;
   padding: 0;
   height: 390px;
   box-sizing: border-box;
   overflow: hidden;
+  width: 300%;
+  display: flex;
+  will-change: transform;
+  transition: transform .3s cubic-bezier(0.390, 0.575, 0.135, 0.995);
 }
 
 .sn-calendar__days__day {
@@ -483,26 +526,8 @@ export default {
   opacity: 0;
 }
 
-.slideHorizontal {
-  transition: all .3s cubic-bezier(0.390, 0.575, 0.135, 0.995);
-  -webkit-transition: all .3s cubic-bezier(0.390, 0.575, 0.135, 0.995);
+.weekMatrix {
   width: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
-  will-change: transform;
-  -webkit-transform: translateX(100%);
-  transform: translateX(100%);
-}
-
-.slideHorizontal.in {
-  -webkit-transform: translateX(0);
-  transform: translateX(0);
-}
-
-.slideHorizontal.out {
-  -webkit-transform: translateX(-100%);
-  transform: translateX(-100%);
 }
 
 #sn-message {
