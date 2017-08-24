@@ -192,6 +192,8 @@ export default {
       this._showMessage();
     },
     _showMessage() {
+      if (!dateUtils.isEqualMonth(this.selectedDate, this.viewDate))
+        return;
       let weekIndex = dateUtils.getWeekOfMonth(this.selectedDate) - 1;
       let dayIndex = this.selectedDate.getDay();
       let dayDetail = this.viewDateMatrix[weekIndex][dayIndex];
