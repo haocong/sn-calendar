@@ -13,7 +13,7 @@
         <div class="selectedDay slideVertical in">{{selectedDay}}</div>
       </div>
       <div id="sn-message" class="layout horizontal center-center">
-        <h1 class="msg-content fade in">{{nowMessage || '休息日 ^_^'}}</h1>
+        <h1 class="msg-content fade in">{{nowMessage || '休息日'}}</h1>
       </div>
     </div>
     <div id="wrapper">
