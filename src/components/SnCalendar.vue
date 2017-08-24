@@ -206,7 +206,7 @@ export default {
     },
 
     _enhanceWeeks(weeksFull) {
-      var self = this;
+      let self = this;
       return weeksFull.map(function(week) {
         if (!week || week === null) {
           return null;
@@ -269,9 +269,9 @@ export default {
       if (this.disablePropertyAnimations){
         return;
       }
-      var delayRemovalTime = 400;
-      var el = element;
-      var elClone = el.cloneNode(true);
+      let delayRemovalTime = 400;
+      let el = element;
+      let elClone = el.cloneNode(true);
 
       el._originalTransition = element.style.transition;
       el.style.transition = 'none';
@@ -473,7 +473,7 @@ export default {
   position: relative;
 }
 
-.sn-calendar__days__day .after {
+.sn-calendar__days__day[selected] .after {
   border-radius: 50%;
   width: 30px;
   height: 30px;
@@ -483,17 +483,7 @@ export default {
   margin-left: -15px;
   margin-top: -16px;
   background: #822e69;
-  -webkit-transform: scale(0);
-  transform: scale(0);
-  opacity: 0;
-  transition: all .2s cubic-bezier(0.175, 0.885, 0.320, 1.275);
-  -webkit-transition: all .2s cubic-bezier(0.175, 0.885, 0.320, 1.275);
-}
-
-.sn-calendar__days__day[selected] .after {
-  -webkit-transform: scale(1);
-  transform: scale(1);
-  opacity: 1;
+  animation: fadeIn .3s cubic-bezier(0.390, 0.575, 0.135, 0.995);
 }
 
 .sn-calendar__days__day div {
